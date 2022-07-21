@@ -1,0 +1,5 @@
+<launch>
+    <group ns="loco/proteus">
+        <node name="active_hreye_server" pkg="proteus_hreye" type="active-hreye_server.py" respawn="true" output="screen"></node>
+    </group>
+</launch>

@@ -1,16 +1,21 @@
 #!/usr/bin/python3
 
+
 import rospy
 from rosnode import get_node_names
 from rospy import service
+import sys
 
 import xml.etree.ElementTree as ET
-from proteus.luceme import Luceme, LNode, LNodeStatic, LNodeBlink, LNodePulse, LNodeFill
 from proteus.srv import SymbolTrigger, SymbolDirectional, SymbolTarget, SymbolQuantity
+from proteus.luceme import Luceme, LNode, LNodeStatic, LNodeBlink, LNodePulse, LNodeFill
+from proteus.hreye import HREyeConfig
+
 
 rospy.init_node('active_hreye_server', argv=None, anonymous=True)
 
 hreye_params = None
+hreye_config = None
 symbols = None
 lucemes = None
 
@@ -27,6 +32,19 @@ def service_cb(req, luceme):
         return execute_quantity(req, luceme)
     else:
         return False
+
+
+def execute_trigger(req, luceme):
+    pass
+
+def execute_directional(req, luceme):
+    pass
+
+def execute_target(req, luceme):
+    pass
+
+def execute_quantity(req, luceme):
+    pass
 
 if __name__ == '__main__':
     rospy.loginfo('Initializing the HREye server')
@@ -64,25 +82,34 @@ if __name__ == '__main__':
 
     #Load XML file
     tree = ET.parse(hreye_def_file)
-    root = tree.getroot()
+    root = tree.getroot()    
 
+    for item in root:
+        if item.tag == 'lucemes':
+            for ldef in item:
+                l = Luceme()
+                l.parse_from_xml(ldef)
+                lucemes[l.id] = l
+        elif item.tag == 'hreye-config':
+            #Special case for parsing the meta information.
+            hreye_config = HREyeConfig()
+            hreye_config.parse_from_xml(item)
+            hreye_config.resolve_sector_indexes() # This is necessary to allow for rings to be undefined until after sectors are read in. 
+                                                  # Once the entire config is read in, however, we have all the required information.
 
-    for ldef in root:
-        l = Luceme()
-        l.parse_from_xml(ldef)
-        lucemes[l.id] = l
+    # print(hreye_config)
+    # for k,l in lucemes.items():
+    #     print(l)
 
     # Check for symbol matchup.
     for s in symbols:
         for key in lucemes:
-            k = lucemes[key]
+            l = lucemes[key]
             if s == l.id:
-                rospy.loginfo("Found match beteween symbol %s and luceme %s, associating data."%(s, k.id))
+                rospy.loginfo("Found match beteween symbol %s and luceme %s, associating data."%(s, l.id))
                 rospy.logdebug("Call type: %s"%(symbols.get(s).get('call_type')))
                 l.set_call_type(symbols.get(s).get('call_type'))
                 break
-
-    print(lucemes)
     
     # Setup service calls
     for key, luceme in lucemes.items():
@@ -96,7 +123,7 @@ if __name__ == '__main__':
         elif luceme.call_type == 'quantity':
             service_class = SymbolQuantity
         else:
-            rospy.logwarn("Unexpected luceme call type %s"%(luceme.call_type))
+            rospy.logwarn("Unexpected luceme call type {} for luceme {}".format(luceme.call_type, luceme.id))
 
         service_name = 'hreye/active/'+ luceme.name.replace(' ', '_')
 

@@ -1,6 +1,4 @@
 #!/usr/bin/python3
-
-
 import rospy
 from rosnode import get_node_names
 from rospy import service
@@ -10,7 +8,6 @@ import xml.etree.ElementTree as ET
 from proteus.srv import SymbolTrigger, SymbolDirectional, SymbolTarget, SymbolQuantity
 from proteus.luceme import Luceme, LNode, LNodeStatic, LNodeBlink, LNodePulse, LNodeFill
 from proteus.hreye import HREyeConfig
-
 
 rospy.init_node('active_hreye_server', argv=None, anonymous=True)
 

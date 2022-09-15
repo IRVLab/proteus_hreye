@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <hreye-definition>
-    <hreye-config>
+    <hreye-config number="2" mode="mirror" rate="10">
         <!-- The rings meta information defines the LED indexing, including the total number of LEDS, the number of rings, 
         whether they are clockwise or counter clockwise, and their cardinal indexes. If your rings' indexing/directionality 
         is different, or cardinal indexes are different, you can easily change those here.-->
@@ -13,14 +13,14 @@
         even cardinal points, you can specify sector assignments for lnodes.-->
         <sectors>
             <sector id="all">
-                <sector-segment ring="outer-ring" start="top" end="top"></sector-segment>
-                <sector-segment ring="inner-ring" start="top" end="top"></sector-segment>
+                <sector-segment ring="outer-ring" start="start" end="end"></sector-segment>
+                <sector-segment ring="inner-ring" start="start" end="end"></sector-segment>
             </sector>
             <sector id="outer">
-                <sector-segment ring="outer-ring" start="top" end="top"></sector-segment>
+                <sector-segment ring="outer-ring" start="start" end="end"></sector-segment>
             </sector>
             <sector id="inner">
-                <sector-segment ring="inner-ring" start="top" end="top"></sector-segment>
+                <sector-segment ring="inner-ring" start="start" end="end"></sector-segment>
             </sector>
             <sector id="exclaim">
                 <sector-segment ring="outer-ring" start="top-1" end="top+1"></sector-segment>
@@ -59,10 +59,9 @@
                 <sector-segment ring="inner-ring" start="right" end="right+1"></sector-segment>
             </sector>
             <sector id="directional">
-                <relative-sector-segment ring="outer-ring" center="roll-angle" width="12"></relative-sector-segment>
-                <relative-sector-segment ring="inner" center="roll-angle" width="8"></relative-sector-segment>
+                <center-relative-sector-segment ring="outer-ring" center="angle" width="12"></center-relative-sector-segment>
+                <center-relative-sector-segment ring="inner" center="angle" width="8"></center-relative-sector-segment>
             </sector>
-
         </sectors>
 
         <!-- The colors meta information provides a set of colors for use on the device. 
@@ -96,7 +95,7 @@
             <lnode-blink step="0" sector="inner" description="Inner ring blinks green">
                 <illumination id="on_state" color="green" brightness="0.25"></illumination>
                 <illumination id="off_state" color="none" brightness="0.25"></illumination>
-                <blink period="2" iterations="3"></blink>
+                <blink period="1" iterations="6"></blink>
             </lnode-blink>
         </luceme>
 
@@ -104,7 +103,7 @@
             <lnode-blink step="0" sector="exclaim" description="Exclaim symbol blinks cyan.">
                 <illumination id="on_state" color="cyan" brightness="0.25"></illumination>
                 <illumination id="off_state" color="none" brightness="0.25"></illumination>
-                <blink period="2" iterations="3"></blink>
+                <blink period="1" iterations="6"></blink>
             </lnode-blink>
         </luceme>
 
@@ -116,7 +115,7 @@
             <lnode-blink step="0" sector="inner" description="Inner ring blinks red.">
                 <illumination id="on_state" color="red" brightness="0.25"></illumination>
                 <illumination id="off_state" color="none" brightness="0.25"></illumination>
-                <blink period="2" iterations="3"></blink>
+                <blink period="1" iterations="6"></blink>
             </lnode-blink>
         </luceme>
 

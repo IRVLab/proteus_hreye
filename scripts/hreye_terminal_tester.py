@@ -3,6 +3,7 @@
 import rospy
 import math
 # Importing pygame module
+from time import sleep
 import pygame
 from pygame.locals import *
 from proteus_hreye.msg import HREyeState
@@ -34,9 +35,9 @@ def hreye_state_callback(msg):
             light_colors[msg.hreye_index][k][1] = 200 
             light_colors[msg.hreye_index][k][2] = 200 
         else:    
-            light_colors[msg.hreye_index][k][0] = rgba.r 
-            light_colors[msg.hreye_index][k][1] = rgba.g 
-            light_colors[msg.hreye_index][k][2] = rgba.b 
+            light_colors[msg.hreye_index][k][0] = rgba.r * rgba.a
+            light_colors[msg.hreye_index][k][1] = rgba.g * rgba.a 
+            light_colors[msg.hreye_index][k][2] = rgba.b * rgba.a
 
     last_msg = rospy.Time.now().secs * 1000
 
@@ -71,20 +72,22 @@ if __name__ == "__main__":
         # Now it is time to draw the lights. 
         light_spread = full_circle / 24
         for i in range(24):
-            light_angle = 0 + (i *(light_spread))
+            light_angle = 0 + (i *(light_spread)) - math.pi/2 # The final term is a bit of a kludge to fix indexing.
             x = (outer_radius * math.cos(light_angle)) + ring_origin[0]
             y = (outer_radius * math.sin(light_angle)) + ring_origin[1]
             light_centers[k].append([x,y])
 
         light_spread = full_circle / 16
         for i in range(16):
-            light_angle = full_circle - (i *(light_spread))
+            light_angle = full_circle - (i *(light_spread)) - math.pi/2 # The final term is a bit of a kludge to fix indexing.
             x = (inner_radius * math.cos(light_angle)) + ring_origin[0]
             y = (inner_radius * math.sin(light_angle)) + ring_origin[1]
             light_centers[k].append([x,y])
 
         for cp in light_centers[k]:
             pygame.draw.circle(window, (0,0,0), cp, light_radius, 4)
+            pygame.display.update()
+            sleep(0.05)
 
     rospy.Subscriber("hreye_state", HREyeState, hreye_state_callback)
     rate = rospy.Rate(10)

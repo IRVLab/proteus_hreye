@@ -58,7 +58,7 @@ def execute_trigger(req, luceme, state_queue, hreye_config):
         indexes = hreye_config.sectors[l.sector_id].get_indexes() # These are the relevent indexes for everything we're going to be doing.
 
         if type(l) is LNodeStatic:
-            n_states = int(duration * states_per_second )
+            n_states = int(duration * states_per_second)
             ill = list(l.illuminations.items())[0][1]
             color_values = hreye_config.colors[ill.color_id]
 
@@ -109,9 +109,84 @@ def execute_trigger(req, luceme, state_queue, hreye_config):
                     flash_on = True
                     continue
                 
-
         elif type(l) is LNodePulse:
-            pass
+            low_ill = l.illuminations['lo_state']
+            high_ill = l.illuminations['hi_state']
+            pulse = l.pulse
+
+            if l.pulse.vary == "alpha":
+                low_a = low_ill.brightness
+                current_a = low_a
+                high_a = high_ill.brightness
+                static_color = hreye_config.colors[low_ill.color_id]
+                
+                for cycle in range(l.pulse.cycles):
+                    n_states = int((duration * states_per_second)/l.pulse.cycles)
+                    start_state = cycle * n_states
+
+                    difference = float(high_a - low_a)
+                    step_size = float(difference * 2.0)/float(n_states)
+                    going_up = True
+
+                    for state in stepwise_states[step][start_state: (start_state + n_states) + 1]:
+                        for i in indexes:
+                            # print(current_a)
+                            state[i].r = static_color.r
+                            state[i].g = static_color.g
+                            state[i].b = static_color.b
+                            state[i].a = current_a
+
+                        if going_up:
+                            current_a += step_size
+                        else:
+                            current_a -= step_size
+
+                        if going_up and current_a >= high_a:
+                            going_up = False
+                        elif not going_up and current_a <= low_a:
+                            going_up = True
+            
+            elif l.pulse.vary == "color":
+                static_a = low_ill.brightness
+                low_color = eval(low_ill.color_id) #Note that in this case, it's not an actual ID, it's a color string.
+                high_color =eval(high_ill.color_id)
+
+                current_color = list(low_color)
+
+                for cycle in range(l.pulse.cycles):
+                    n_states = int((duration * states_per_second)/l.pulse.cycles)
+                    start_state = cycle * n_states
+
+                    differences = (high_color[0]-low_color[0], high_color[1]-low_color[1], high_color[2]-low_color[2])
+                    step_sizes = ((differences[0] * 2.0)/float(n_states), (differences[1] * 2.0)/float(n_states), (differences[2] * 2.0)/float(n_states))
+                    going_up = True
+
+                    for state in stepwise_states[step][start_state: (start_state + n_states) + 1]:
+                        for i in indexes:
+                            state[i].r = current_color[0]
+                            state[i].g = current_color[1]
+                            state[i].b = current_color[2]
+                            state[i].a = static_a
+
+                        if going_up:
+                            current_color[0] += step_sizes[0]
+                            current_color[1] += step_sizes[1]
+                            current_color[2] += step_sizes[2]
+                        else:
+                            current_color[0] -= step_sizes[0]
+                            current_color[1] -= step_sizes[1]
+                            current_color[2] -= step_sizes[2]
+
+                        if going_up and current_color[0] >= high_color[0] and current_color[1] >= high_color[1] and current_color[2] >= high_color[2]:
+                            going_up = False
+                        elif not going_up and current_color[0] <= low_color[0] and current_color[1] <= low_color[1] and current_color[2] <= low_color[2]:
+                            going_up = True
+
+                pass
+
+            else:
+                raise NotImplementedError("This type of pulse LNodes({}) have not yet been implemented.".format(pulse.vary))
+            
         elif type(1) is LNodeFill:
             pass
 
@@ -119,7 +194,7 @@ def execute_trigger(req, luceme, state_queue, hreye_config):
     state_queue.extend(luceme_state)
 
     # With the states dispatched to the queue, block until the luceme is completed.
-    sleep(duration)
+    sleep(total_duration)
 
     return True
 

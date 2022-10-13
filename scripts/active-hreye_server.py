@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+from operator import length_hint
 import rospy
 from rosnode import get_node_names
 from rospy import service
@@ -187,8 +188,55 @@ def execute_trigger(req, luceme, state_queue, hreye_config):
             else:
                 raise NotImplementedError("This type of pulse LNodes({}) have not yet been implemented.".format(pulse.vary))
             
-        elif type(1) is LNodeFill:
-            pass
+        elif type(l) is LNodeFill:
+            #This is gonna get messy. 
+            ill = l.illuminations['fill']
+            color_values = hreye_config.colors[ill.color_id]
+            n_states = int(duration * states_per_second)
+
+            if l.fill.type == 'segment-move':
+                #TODO Modify this so that we aren't assuming the sector is one segment only.
+                sector_seg = hreye_config.sectors[l.sector_id].segments[0]
+                ring = hreye_config.rings[sector_seg.ring]
+                start_index = sector_seg.resolve_index_formula(l.fill.start, ring)
+
+                fill_start = start_index
+                max_index = indexes[-1]
+                min_index = indexes[0]
+                print(fill_start, l.fill.length, max_index)
+                
+                for state in stepwise_states[step][0:n_states + 1]:
+
+                    diff = max_index-fill_start
+
+                    #FIXME Doesn't work for counterclockwise.
+                    
+                    if diff > l.fill.length:
+                        segment_indexes = [k for k in range(fill_start, fill_start + l.fill.length + 1)]    
+
+                    else:
+                        segment_indexes = [k for k in range(fill_start, max_index+1)]
+                        segment_indexes.extend([k  for k in range(0, (l.fill.length - (max_index-fill_start) + 1))])
+
+                    for i in segment_indexes:
+                        state[i].r = color_values.r
+                        state[i].g = color_values.g
+                        state[i].b = color_values.b
+                        state[i].a = ill.brightness
+                
+                                    
+                    if l.fill.direction == 'clockwise':
+                        if fill_start < max_index:
+                            fill_start += 1
+                        else:
+                            fill_start = 0
+                    elif l.fill.direction == 'counter-clockwise':
+                        if fill_start < min_index:
+                            fill_start -= 1
+                        else:
+                            fill_start = max_index
+            else:
+                raise NotImplementedError("Fill type {} not implemented.".format(l.fill.type))
 
     luceme_state = [state for statelist in stepwise_states for state in statelist]
     state_queue.extend(luceme_state)

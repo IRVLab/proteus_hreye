@@ -69,7 +69,7 @@
         <colors>
             <color id="none" r="0" g="0" b="0"></color>
             <color id="green" r="0" g="200" b="0"></color>
-            <color id="cyan" r="0" g="50" b="50"></color>
+            <color id="cyan" r="0" g="175" b="175"></color>
             <color id="blue" r="0" g="0" b="140"></color>
             <color id="white" r="250" g="250" b="250"></color>
             <color id="red" r="200" g="0" b="0"></color>

@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+
 import rospy
 from rosnode import get_node_names
 from rospy import service
@@ -7,6 +8,7 @@ from time import sleep
 
 import xml.etree.ElementTree as ET
 from proteus.srv import SymbolTrigger, SymbolDirectional, SymbolTarget, SymbolQuantity
+from proteus.color import Color
 from proteus.luceme import Luceme, LNode, LNodeStatic, LNodeBlink, LNodePulse, LNodeFill
 from proteus.hreye import HREyeConfig
 
@@ -39,18 +41,16 @@ def service_cb(req, luceme):
         return False
 
 def execute_trigger(req, luceme, state_queue, hreye_config):
-
-
     step_durations = luceme.get_luceme_duration()
     states_per_second = hreye_config.rate
-    state_vector = [ColorRGBA()] * 40
+    # state_vector = [ColorRGBA()] * 40
 
     # This sets up a list of lists. Each list is the states for that step of the luceme.
-    stepwise_states = [[]] * len(step_durations)
+    stepwise_states = [[] for x in range(len(step_durations))]
     total_duration = 0
     for step, duration in enumerate(step_durations):
         total_duration += duration
-        stepwise_states[step] = [state_vector] * int(states_per_second * duration)
+        stepwise_states[step] = [[ColorRGBA() for x in range(40)] for x in range(int(states_per_second * duration))]
 
     for l in luceme.lnodes:
         step = l.step # Relevent step for everything we're going to do.
@@ -62,7 +62,7 @@ def execute_trigger(req, luceme, state_queue, hreye_config):
             ill = list(l.illuminations.items())[0][1]
             color_values = hreye_config.colors[ill.color_id]
 
-            for state in stepwise_states[step][0:n_states + 1]:
+            for state in stepwise_states[step][0:n_states + 1]:    
                 for i in indexes:
                     state[i].r = color_values.r
                     state[i].g = color_values.g
@@ -75,17 +75,19 @@ def execute_trigger(req, luceme, state_queue, hreye_config):
             on_color = hreye_config.colors[on_ill.color_id]
 
             if off_ill.color_id == "none":
-                off_color = (0,0,0)
+                off_color = Color()
+                off_color.r = 0
+                off_color.g = 0
+                off_color.b = 0
             else:
                 off_color = hreye_config.colors[off_ill.color_id]
 
             flash_on = True
 
-            for iter in range(l.blink.iterations + 1):
-                n_states = int(duration * states_per_second )
+            for iter in range(l.blink.iterations):
+                # Make sure that we consider the the iterations in our calculation of states.
+                n_states = int((duration * states_per_second)/l.blink.iterations)
                 start_state = iter * n_states
-
-                print("From {} to {}".format(start_state, (start_state+n_states)))
 
                 if flash_on:
                     for state in stepwise_states[step][start_state: (start_state + n_states) + 1]:
@@ -94,8 +96,8 @@ def execute_trigger(req, luceme, state_queue, hreye_config):
                             state[i].g = on_color.g
                             state[i].b = on_color.b
                             state[i].a = on_ill.brightness
-
                     flash_on = False
+                        
                     continue
                 else:
                     for state in stepwise_states[step][start_state: (start_state + n_states) + 1]:
@@ -104,8 +106,7 @@ def execute_trigger(req, luceme, state_queue, hreye_config):
                             state[i].g = off_color.g
                             state[i].b = off_color.b
                             state[i].a = off_ill.brightness
-                            
-                    flash_on = False
+                    flash_on = True
                     continue
                 
 
@@ -113,7 +114,6 @@ def execute_trigger(req, luceme, state_queue, hreye_config):
             pass
         elif type(1) is LNodeFill:
             pass
-
 
     luceme_state = [state for statelist in stepwise_states for state in statelist]
     state_queue.extend(luceme_state)
@@ -182,6 +182,8 @@ if __name__ == '__main__':
             hreye_config.resolve_sector_indexes() # This is necessary to allow for rings to be undefined until after sectors are read in. 
                                                   # Once the entire config is read in, however, we have all the required information.
 
+    print(hreye_config)
+
     # Check for symbol matchup.
     for s in symbols:
         for key in lucemes:
@@ -225,6 +227,7 @@ if __name__ == '__main__':
                     msg.hreye_index = k
                     msg.state = state 
 
+                    # print(state)
                     state_publisher.publish(msg)
                 
             else:

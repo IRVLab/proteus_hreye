@@ -417,6 +417,9 @@ def execute_target(req, luceme, state_queue, hreye_config):
 def execute_quantity(req, luceme, state_queue, hreye_config):
     value = int(req.quantity * 100)
 
+    if value < 0:
+        raise ValueError("Quantity expressed cannot be negative.")
+
     step_durations = luceme.get_luceme_duration()
     states_per_second = hreye_config.rate
     # state_vector = [ColorRGBA()] * 40
@@ -487,17 +490,54 @@ def execute_quantity(req, luceme, state_queue, hreye_config):
                     continue
     
         elif type(l) is LNodeFill:
-            color_map = l.color_map
-            range = l.fill.range
+            n_states = int(duration * states_per_second)
 
+            color_map = l.color_map
+            fill_range = l.fill.range
+            range_length = fill_range[1]-fill_range[0]
+            amount_per_index = int(range_length / len(indexes))
+
+            #TODO: change so that the fill can start from anywhere, not just the beginning of the ring.
             if l.fill.type == 'expand-value':
-                
-                current_color_vals = hreye_config.colors[l.illuminations[color_map.mapping[0]].color_id]
-                current_brightness = l.illuminations[color_map.mapping[0]].brightness
+                current_amount = 0
+                current_index = 0
+
+                for state in stepwise_states[step][0:n_states + 1]:
+                    current_color_vals = hreye_config.colors[l.illuminations[color_map.mapping[int(current_amount)]].color_id]
+                    current_brightness = l.illuminations[color_map.mapping[int(current_amount)]].brightness
+
+                    for i in indexes[0:current_index+1]:
+                        state[i].r = current_color_vals.r
+                        state[i].g = current_color_vals.g
+                        state[i].b = current_color_vals.b
+                        state[i].a = current_brightness
+                    
+                    if current_amount < value:
+                        current_amount += amount_per_index
+                        current_index += 1
+
 
             elif l.fill.type == 'contract-value':
-                current_color_vals = hreye_config.colors[l.illuminations[color_map.mapping[value]].color_id]
-                current_brightness = l.illuminations[color_map.mapping[0]].brightness
+                current_amount = value
+                current_index = int(value/amount_per_index)
+
+                for state in stepwise_states[step][0:n_states + 1]:
+                    current_color_vals = hreye_config.colors[l.illuminations[color_map.mapping[int(current_amount)]].color_id]
+                    current_brightness = l.illuminations[color_map.mapping[int(current_amount)]].brightness
+
+                    for i in indexes[0:current_index+1]:
+                        state[i].r = current_color_vals.r
+                        state[i].g = current_color_vals.g
+                        state[i].b = current_color_vals.b
+                        state[i].a = current_brightness
+                    
+                    if current_amount > 0:
+                        current_amount -= amount_per_index
+                        current_index -= 1
+
+                        if current_index < 0:
+                            current_index = 0
+                            current_amount = 0
 
         else:
             raise NotImplementedError("That type of LNode ({}) not implemented for Directional lucemes.".format(type(l)))

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hreye-definition>
+    <hreye-config number="2" mode="mirror" rate="10">
+        <!-- The rings meta information defines the LED indexing, including the total number of LEDS, the number of rings, 
+        whether they are clockwise or counter clockwise, and their cardinal indexes. If your rings' indexing/directionality 
+        is different, or cardinal indexes are different, you can easily change those here.-->
+        <rings num_rings="2" total_leds="40">
+            <ring id="outer-ring" start="0" end="23" dir="clockwise" top="0" right="6" bot="12" left="18"></ring>
+            <ring id="inner-ring" start="24" end="39" dir="counter-clockwise" top="24" right="28" bot="32" left="36"></ring>
+        </rings>
+
+        <!-- The sectors meta information provides aliases for portions of the device. Instead of having to specify indexes or 
+        even cardinal points, you can specify sector assignments for lnodes.-->
+        <sectors>
+            <sector id="all">
+                <sector-segment ring="outer-ring" start="start" end="end"></sector-segment>
+                <sector-segment ring="inner-ring" start="start" end="end"></sector-segment>
+            </sector>
+            <sector id="outer">
+                <sector-segment ring="outer-ring" start="start" end="end"></sector-segment>
+            </sector>
+            <sector id="inner">
+                <sector-segment ring="inner-ring" start="start" end="end"></sector-segment>
+            </sector>
+        </sectors>
+
+        <!-- The colors meta information provides a set of colors for use on the device. 
+        These color definitons are drawn directly from the original HREye code.-->
+        <colors>
+            <color id="none" r="0" g="0" b="0"></color>
+            <color id="green" r="0" g="200" b="0"></color>
+            <color id="cyan" r="0" g="175" b="175"></color>
+            <color id="blue" r="0" g="0" b="140"></color>
+            <color id="white" r="250" g="250" b="250"></color>
+            <color id="red" r="200" g="0" b="0"></color>
+            <color id="purple" r="128" g="0" b="128"></color>
+            <color id="orange" r="255" g="165" b="0"></color>
+            <color id="yellow" r="255" g="255" b="0"></color>
+        </colors>
+
+        <!-- The default state meta information provides a luceme-like definition which the HREyes should be set to after any luceme call in this mode.-->
+        <default-state>
+            <lnode-static step="0" sector="all" description="default state">
+                <illumination color="none" brightness="1.0"></illumination>
+            </lnode-static>
+        </default-state>
+    </hreye-config>
+
+    <lucemes>
+    </lucemes>
+</hreye-definition>

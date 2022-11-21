@@ -315,16 +315,16 @@
         <luceme name="Remaining Time" id="time_remaining">
             <lnode-fill step="0" sector="outer" description="Outer ring fills to value.">
                     <illumination id="low" color="red" brightness="1.0"></illumination>
-                    <illumination id="mid" color="yellow" brightness="1.0"></illumination>
-                    <illumination id="high" color="orange" brightness="1.0"></illumination>
+                    <illumination id="mid" color="orange" brightness="1.0"></illumination>
+                    <illumination id="high" color="yellow" brightness="1.0"></illumination>
                     <fill type="expand-value" direction="clockwise" start="top" range="0:100"></fill>
                     <color-map target="value" mapping="low=0:20;mid=21:50;high=51:100"></color-map>
                     <duration seconds="3"></duration>
             </lnode-fill>
             <lnode-fill step="1" sector="outer" description="Outer ring reverses its fill">
                     <illumination id="low" color="red" brightness="1.0"></illumination>
-                    <illumination id="mid" color="yellow" brightness="1.0"></illumination>
-                    <illumination id="high" color="orange" brightness="1.0"></illumination>
+                    <illumination id="mid" color="orange" brightness="1.0"></illumination>
+                    <illumination id="high" color="yellow" brightness="1.0"></illumination>
                     <fill type="contract-value" direction="counter-clockwise" start="value" range="0:100"></fill>
                     <color-map target="value" mapping="low=0:20;mid=21:50;high=51:100"></color-map>
                     <duration seconds="3"></duration>

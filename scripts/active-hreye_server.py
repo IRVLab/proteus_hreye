@@ -3,7 +3,7 @@
 from operator import length_hint
 import rospy
 from rosnode import get_node_names
-from tf.transformations import euler_from_quaternion
+# from tf.transformations import euler_from_quaternion
 import sys
 from time import sleep
 
@@ -249,6 +249,7 @@ def execute_trigger(req, luceme, state_queue, hreye_config):
     return True
 
 def execute_directional(req, luceme, state_queue, hreye_config):
+    return False
     euler_angles = euler_from_quaternion([req.transform.rotation.x, req.transform.rotation.y, req.transform.rotation.z, req.transform.rotation.w])
 
     step_durations = luceme.get_luceme_duration()
@@ -617,7 +618,7 @@ if __name__ == '__main__':
                 l.set_call_type(symbols.get(s).get('call_type'))
                 break
 
-    state_publisher = rospy.Publisher("/hreye_state", HREyeState)
+    state_publisher = rospy.Publisher("hreye/state", HREyeState)
     
     # Setup service calls
     for key, luceme in lucemes.items():

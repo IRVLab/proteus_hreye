@@ -641,24 +641,34 @@ if __name__ == '__main__':
 
     rate = rospy.Rate(hreye_config.rate)
     while not rospy.is_shutdown():
+        h = Header()
+        h.stamp = rospy.Time.now()
         if len(state_queue) > 0:
             if hreye_config.mode == 'mirror':
                 state = state_queue.pop(0)
-                msgs = []
+
                 for k in range(hreye_config.number_of_eyes):
                     msg = HREyeState()
-                    msg.header = Header()
+                    msg.header = h
                     msg.hreye_index = k
                     msg.state = state 
+                    msg.state[0].a = 0.5
 
-                    # print(state)
                     state_publisher.publish(msg)
                 
             else:
                 raise NotImplementedError("Not sure how to handle this HREye mode {}".format(hreye_config.mode))
                 
         else:
-            pass # This is where we publish the default state.
+            for k in range(hreye_config.number_of_eyes):
+                    msg = HREyeState()
+                    msg.header = h
+                    msg.hreye_index = k
+                    msg.state = [ColorRGBA()] * 40 
+                    msg.state[0].a = 0.0
+
+                    # print(state)
+                    state_publisher.publish(msg)
 
         
         rate.sleep()

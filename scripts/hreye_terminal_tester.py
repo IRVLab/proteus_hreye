@@ -89,7 +89,7 @@ if __name__ == "__main__":
             pygame.display.update()
             sleep(0.05)
 
-    rospy.Subscriber("hreye_state", HREyeState, hreye_state_callback)
+    rospy.Subscriber("/loco/proteus/hreye/state", HREyeState, hreye_state_callback)
     rate = rospy.Rate(10)
     while not rospy.is_shutdown():
         # Draws the surface object to the screen.

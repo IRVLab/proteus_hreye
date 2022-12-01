@@ -652,7 +652,6 @@ if __name__ == '__main__':
                     msg.header = h
                     msg.hreye_index = k
                     msg.state = state 
-                    msg.state[0].a = 0.5
 
                     state_publisher.publish(msg)
                 
@@ -665,7 +664,6 @@ if __name__ == '__main__':
                     msg.header = h
                     msg.hreye_index = k
                     msg.state = [ColorRGBA()] * 40 
-                    msg.state[0].a = 0.0
 
                     # print(state)
                     state_publisher.publish(msg)

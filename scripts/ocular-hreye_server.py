@@ -8,7 +8,7 @@ import sys
 from time import sleep
 
 import xml.etree.ElementTree as ET
-from proteus.srv import SymbolTrigger, SymbolDirectional, SymbolTarget, SymbolQuantity
+from proteus_msgs.srv import SymbolTrigger, SymbolDirectional, SymbolTarget, SymbolQuantity
 from proteus.color import Color
 from proteus.luceme import Luceme, LNode, LNodeStatic, LNodeBlink, LNodePulse, LNodeFill
 from proteus.hreye import HREyeConfig

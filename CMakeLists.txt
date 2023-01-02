@@ -10,6 +10,8 @@ project(proteus_hreye)
 find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
+  message_generation
+  message_runtime
   proteus
   proteus_msgs
 )

@@ -9,9 +9,9 @@ from time import sleep
 
 import xml.etree.ElementTree as ET
 from proteus_msgs.srv import SymbolTrigger, SymbolDirectional, SymbolTarget, SymbolQuantity
-from proteus.color import Color
-from proteus.luceme import Luceme, LNode, LNodeStatic, LNodeBlink, LNodePulse, LNodeFill
-from proteus.hreye import HREyeConfig
+from proteus.symbol.color import Color
+from proteus.vector.hreye import Luceme, LNode, LNodeStatic, LNodeBlink, LNodePulse, LNodeFill
+from proteus.vector.hreye import HREyeConfig
 
 from std_msgs.msg import Header, ColorRGBA
 from proteus_hreye.msg import HREyeState
@@ -609,13 +609,12 @@ if __name__ == '__main__':
     print(hreye_config)
 
     # Check for symbol matchup.
-    for s in symbols:
-        for key in lucemes:
-            l = lucemes[key]
-            if s == l.id:
-                rospy.loginfo("Found match beteween symbol %s and luceme %s, associating data."%(s, l.id))
-                rospy.logdebug("Call type: %s"%(symbols.get(s).get('call_type')))
-                l.set_call_type(symbols.get(s).get('call_type'))
+    for sname, s in symbols.items():
+        for key, l in lucemes.items():
+            if s['id'] == l.id:
+                rospy.loginfo(f"Found match beteween symbol {s['id']} and luceme {l.id}, associating data.")
+                rospy.logdebug(f"Call type: {s['input_required']}")
+                l.set_call_type(s['input_required'])
                 break
 
     state_publisher = rospy.Publisher("hreye/state", HREyeState)

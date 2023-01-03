@@ -606,7 +606,7 @@ if __name__ == '__main__':
             hreye_config.resolve_sector_indexes() # This is necessary to allow for rings to be undefined until after sectors are read in. 
                                                   # Once the entire config is read in, however, we have all the required information.
 
-    print(hreye_config)
+    # print(hreye_config)
 
     # Check for symbol matchup.
     for sname, s in symbols.items():
